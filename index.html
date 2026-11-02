@@ -1,1 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Printing Agent</title>
 
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:15px;
+  font-family:Arial,sans-serif;
+  background:#f2f5fa;
+  color:#222;
+}
+.container{max-width:600px;margin:auto}
+header{text-align:center;color:#174ea6;padding:15px}
+.box{
+  background:white;
+  padding:18px;
+  border-radius:12px;
+  margin:15px 0;
+  box-shadow:0 2px 8px #00000012;
+}
+h3{margin-top:0;color:#174ea6}
+input,button,select{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:15px;
+}
+button{
+  background:#174ea6;
+  color:white;
+  border:none;
+  font-weight:bold;
+}
+.status{
+  padding:12px;
+  background:#fff4d6;
+  border-radius:8px;
+  text-align:center;
+}
+.muted{font-size:13px;color:#666}
+.hidden{display:none}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+<h1>Smart Printing</h1>
+<p>Shop Printing Agent</p>
+</header>
+
+<div class="box" id="loginBox">
+<h3>Shop Owner Login</h3>
+
+<input type="email" id="email" placeholder="Email Address">
+<input type="password" id="password" placeholder="Password">
+
+<button id="loginBtn">Login</button>
+
+<p class="muted">Secure shop access will be connected with Firebase.</p>
+<div id="loginMessage"></div>
+</div>
+
+<div id="app" class="hidden">
+
+<div class="box">
+<h3>Printer Connection</h3>
+<div class="status" id="printerStatus">
+Printer Not Connected
+</div>
+
+<button id="connectBtn">Connect Printer</button>
+<p class="muted">
+USB OTG and compatible printer support will be added in a later stage.
+</p>
+</div>
+
+<div class="box">
+<h3>Order Queue</h3>
+<div id="queueCount">0 Orders</div>
+<div id="orders">
+<p class="muted">No orders available.</p>
+</div>
+</div>
+
+<div class="box">
+<h3>Supported File Types</h3>
+<p>PDF · JPG · JPEG · PNG</p>
+<p class="muted">
+Automatic printing will start only after secure payment verification
+and printer compatibility checks.
+</p>
+</div>
+
+<div class="box">
+<h3>Agent Status</h3>
+<div class="status">Prototype Mode</div>
+</div>
+
+</div>
+</div>
+
+<script>
+const loginBtn=document.getElementById("loginBtn");
+const loginBox=document.getElementById("loginBox");
+const app=document.getElementById("app");
+
+loginBtn.addEventListener("click",()=>{
+  document.getElementById("loginMessage").textContent=
+  "Firebase login integration is coming next.";
+});
+
+document.getElementById("connectBtn").addEventListener("click",()=>{
+  alert("USB Printer connection will be added after Android integration.");
+});
+</script>
+
+</body>
+  </html>
