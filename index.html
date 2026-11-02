@@ -7,45 +7,21 @@
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  padding:15px;
-  font-family:Arial,sans-serif;
-  background:#f2f5fa;
-  color:#222;
-}
+body{margin:0;padding:15px;font-family:Arial,sans-serif;background:#f2f5fa;color:#222}
 .container{max-width:600px;margin:auto}
 header{text-align:center;color:#174ea6;padding:15px}
-.box{
-  background:white;
-  padding:18px;
-  border-radius:12px;
-  margin:15px 0;
-  box-shadow:0 2px 8px #00000012;
-}
+.box{background:white;padding:18px;border-radius:12px;margin:15px 0;box-shadow:0 2px 8px #00000012}
 h3{margin-top:0;color:#174ea6}
-input,button,select{
-  width:100%;
-  padding:13px;
-  margin:7px 0;
-  border:1px solid #ccc;
-  border-radius:8px;
-  font-size:15px;
-}
-button{
-  background:#174ea6;
-  color:white;
-  border:none;
-  font-weight:bold;
-}
-.status{
-  padding:12px;
-  background:#fff4d6;
-  border-radius:8px;
-  text-align:center;
-}
+input,button{width:100%;padding:13px;margin:7px 0;border:1px solid #ccc;border-radius:8px;font-size:15px}
+button{background:#174ea6;color:white;border:none;font-weight:bold;cursor:pointer}
+button:disabled{background:#999}
+.logout{background:#d93025}
+.status{padding:12px;background:#fff4d6;border-radius:8px;text-align:center}
 .muted{font-size:13px;color:#666}
 .hidden{display:none}
+.message{text-align:center;margin:10px 0;font-size:14px}
+.error{color:red}
+.success{color:green}
 </style>
 </head>
 
@@ -60,24 +36,25 @@ button{
 <div class="box" id="loginBox">
 <h3>Shop Owner Login</h3>
 
-<input type="email" id="email" placeholder="Email Address">
-<input type="password" id="password" placeholder="Password">
+<input type="email" id="email" placeholder="Email Address" autocomplete="username">
+<input type="password" id="password" placeholder="Password" autocomplete="current-password">
 
 <button id="loginBtn">Login</button>
 
-<p class="muted">Secure shop access will be connected with Firebase.</p>
-<div id="loginMessage"></div>
+<div id="loginMessage" class="message"></div>
 </div>
 
 <div id="app" class="hidden">
 
 <div class="box">
 <h3>Printer Connection</h3>
+
 <div class="status" id="printerStatus">
 Printer Not Connected
 </div>
 
 <button id="connectBtn">Connect Printer</button>
+
 <p class="muted">
 USB OTG and compatible printer support will be added in a later stage.
 </p>
@@ -86,6 +63,7 @@ USB OTG and compatible printer support will be added in a later stage.
 <div class="box">
 <h3>Order Queue</h3>
 <div id="queueCount">0 Orders</div>
+
 <div id="orders">
 <p class="muted">No orders available.</p>
 </div>
@@ -94,6 +72,7 @@ USB OTG and compatible printer support will be added in a later stage.
 <div class="box">
 <h3>Supported File Types</h3>
 <p>PDF · JPG · JPEG · PNG</p>
+
 <p class="muted">
 Automatic printing will start only after secure payment verification
 and printer compatibility checks.
@@ -105,22 +84,116 @@ and printer compatibility checks.
 <div class="status">Prototype Mode</div>
 </div>
 
+<div class="box">
+<button id="logoutBtn" class="logout">Logout</button>
+</div>
+
 </div>
 </div>
 
-<script>
-const loginBtn=document.getElementById("loginBtn");
-const loginBox=document.getElementById("loginBox");
-const app=document.getElementById("app");
+<script type="module">
 
-loginBtn.addEventListener("click",()=>{
-  document.getElementById("loginMessage").textContent=
-  "Firebase login integration is coming next.";
+import { auth } from "./firebase.js";
+
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const loginBox = document.getElementById("loginBox");
+const app = document.getElementById("app");
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const connectBtn = document.getElementById("connectBtn");
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+const loginMessage = document.getElementById("loginMessage");
+
+function showMessage(text, type = "") {
+  loginMessage.textContent = text;
+  loginMessage.className = "message " + type;
+}
+
+// FIREBASE LOGIN
+loginBtn.addEventListener("click", async () => {
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  if (!email || !password) {
+    showMessage("Please enter email and password.", "error");
+    return;
+  }
+
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Logging in...";
+  showMessage("Please wait...");
+
+  try {
+
+    await signInWithEmailAndPassword(auth, email, password);
+
+    showMessage("Login successful.", "success");
+
+  } catch (error) {
+
+    showMessage(error.message, "error");
+
+  } finally {
+
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Login";
+
+  }
+
 });
 
-document.getElementById("connectBtn").addEventListener("click",()=>{
-  alert("USB Printer connection will be added after Android integration.");
+// AUTH STATE CHECK
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+
+    loginBox.classList.add("hidden");
+    app.classList.remove("hidden");
+
+  } else {
+
+    app.classList.add("hidden");
+    loginBox.classList.remove("hidden");
+
+  }
+
 });
+
+// LOGOUT
+logoutBtn.addEventListener("click", async () => {
+
+  try {
+
+    await signOut(auth);
+
+    passwordInput.value = "";
+    showMessage("Logged out successfully.", "success");
+
+  } catch (error) {
+
+    alert("Logout failed: " + error.message);
+
+  }
+
+});
+
+// PRINTER PROTOTYPE
+connectBtn.addEventListener("click", () => {
+
+  alert("USB printer connection is not available yet. It will be added in the Android integration stage.");
+
+});
+
 </script>
 
 </body>
